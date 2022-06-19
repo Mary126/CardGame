@@ -1,5 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
+using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
@@ -15,27 +15,30 @@ public class CardController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
     private Vector3 initialPosition;
     private float distanceMoved;
     private GameController gameController;
+    private bool swipedRight;
 
     private void Awake()
     {
         leftAnswerObject = transform.Find("Left Answer Text").gameObject;
         rightAnswerObject = transform.Find("Right Answer Text").gameObject;
-        leftAnswerObject.GetComponent<TextMeshProUGUI>().text = leftAnswerText;
-        rightAnswerObject.GetComponent<TextMeshProUGUI>().text = rightAnswerText;
         gameController = GameObject.Find("GameController").GetComponent<GameController>();
     }
     public void OnDrag(PointerEventData eventData)
     {
-        transform.localPosition = new Vector2(transform.localPosition.x + eventData.delta.x, transform.localPosition.y);
-        if (transform.localPosition.x > 0)
+        if (transform.localPosition.x <= 100 && transform.localPosition.x >= -100)
         {
-            rightAnswerObject.SetActive(true);
-            leftAnswerObject.SetActive(false);
-        }
-        else if (transform.localPosition.x < 0)
-        {
-            leftAnswerObject.SetActive(true);
-            rightAnswerObject.SetActive(false);
+            transform.localPosition = new Vector2(transform.localPosition.x + eventData.delta.x, transform.localPosition.y);
+            transform.rotation = Quaternion.Euler(0, 0, -transform.localPosition.x / 10);
+            if (transform.localPosition.x > 0)
+            {
+                rightAnswerObject.SetActive(true);
+                leftAnswerObject.SetActive(false);
+            }
+            else if (transform.localPosition.x < 0)
+            {
+                leftAnswerObject.SetActive(true);
+                rightAnswerObject.SetActive(false);
+            }
         }
     }
     public void OnBeginDrag(PointerEventData eventData)
@@ -46,9 +49,10 @@ public class CardController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
     public void OnEndDrag(PointerEventData eventData)
     {
         distanceMoved = Mathf.Abs(transform.localPosition.x - initialPosition.x);
-        if (distanceMoved < 0.2 * Screen.width)
+        if (distanceMoved < 0.01 * Screen.width)
         {
             transform.localPosition = initialPosition;
+            transform.rotation = Quaternion.identity;
             leftAnswerObject.SetActive(false);
             rightAnswerObject.SetActive(false);
         }
@@ -60,6 +64,7 @@ public class CardController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
                 {
                     gameController.AnswerCorrect();
                 }
+                swipedRight = true;
             }
             else
             {
@@ -67,8 +72,30 @@ public class CardController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
                 {
                     gameController.AnswerCorrect();
                 }
+                swipedRight = false;
             }
-            gameController.DestroyTopCard();
+            StartCoroutine(MovedCard());
         }
+    }
+    private IEnumerator MovedCard()
+    {
+        float time = 0;
+        while (GetComponent<Image>().color != new Color(1, 1, 1, 0))
+        {
+            time += Time.deltaTime;
+            if (!swipedRight)
+            {
+                transform.localPosition = new Vector3(Mathf.SmoothStep(transform.localPosition.x,
+                    transform.localPosition.x - 200, time), Mathf.SmoothStep(transform.localPosition.y, transform.localPosition.y - Screen.height, time), 0);
+            }
+            else
+            {
+                transform.localPosition = new Vector3(Mathf.SmoothStep(transform.localPosition.x,
+                    transform.localPosition.x + 200, time), Mathf.SmoothStep(transform.localPosition.y, transform.localPosition.y - Screen.height, time), 0);
+            }
+            GetComponent<Image>().color = new Color(1, 1, 1, Mathf.SmoothStep(1, 0, 4 * time));
+            yield return null;
+        }
+        gameController.DestroyTopCard();
     }
 }

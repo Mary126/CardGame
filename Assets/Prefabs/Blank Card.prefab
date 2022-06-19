@@ -94,7 +94,7 @@ MonoBehaviour:
   questionText: 
   leftAnswerText: 
   rightAnswerText: 
-  rightAnswerIsCorrect: 1
+  rightAnswerIsCorrect: 0
 --- !u!1 &3130658358722914423
 GameObject:
   m_ObjectHideFlags: 0

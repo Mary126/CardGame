@@ -35,29 +35,32 @@ public class GameController : MonoBehaviour
         for (int i = 1; i < dataLines.Length - 1; i++)
         {
             var data = dataLines[i].Split(';');
-            GameObject newCard = Instantiate(cardBlank, Vector3.zero, Quaternion.identity);
+            GameObject newCard = Instantiate(cardBlank);
+            newCard.transform.SetParent(gameObject.transform);
             newCard.GetComponent<CardController>().questionText = data[0];
             string correctAnswer = data[1];
             string incorrectAnswer = data[2];
             int number = Random.Range(1, 3);
             if (number == 1)
             {
-                newCard.GetComponent<CardController>().rightAnswerText = correctAnswer;
-                newCard.GetComponent<CardController>().leftAnswerText = incorrectAnswer;
+                newCard.transform.Find("Right Answer Text").GetComponent<TMPro.TextMeshProUGUI>().text = correctAnswer;
+                newCard.transform.Find("Left Answer Text").GetComponent<TMPro.TextMeshProUGUI>().text = incorrectAnswer;
                 newCard.GetComponent<CardController>().rightAnswerIsCorrect = true;
             }
             else if (number == 2)
             {
-                newCard.GetComponent<CardController>().rightAnswerText = incorrectAnswer;
-                newCard.GetComponent<CardController>().leftAnswerText = correctAnswer;
+                newCard.transform.Find("Right Answer Text").GetComponent<TMPro.TextMeshProUGUI>().text = incorrectAnswer;
+                newCard.transform.Find("Left Answer Text").GetComponent<TMPro.TextMeshProUGUI>().text = correctAnswer;
                 newCard.GetComponent<CardController>().rightAnswerIsCorrect = false;
             }
+            newCard.SetActive(false);
             cards.Add(newCard);
         }
     }
     private GameObject GenerateNewCard(float positionZ)
     {
-        GameObject newCard = Instantiate(cardStack.Pop());
+        GameObject newCard = cardStack.Pop();
+        newCard.SetActive(true);
         newCard.transform.SetParent(cardsObjects.transform);
         newCard.transform.position = new Vector3(0, 0, positionZ);
         newCard.name = "Card " + cardStack.Count;
