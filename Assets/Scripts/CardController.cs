@@ -16,7 +16,7 @@ public class CardController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
     private float distanceMoved;
     private GameController gameController;
 
-    private void Start()
+    private void Awake()
     {
         leftAnswerObject = transform.Find("Left Answer Text").gameObject;
         rightAnswerObject = transform.Find("Right Answer Text").gameObject;

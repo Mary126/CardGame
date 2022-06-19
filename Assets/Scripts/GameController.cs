@@ -8,7 +8,7 @@ public class GameController : MonoBehaviour
     private Stack<GameObject> cardStack;
     private GameObject firstCard;
     private GameObject secondCard;
-    public GameObject board;
+    public GameObject cardsObjects;
     public int enemyHealth;
     public TMPro.TextMeshProUGUI enemyHealthText;
     public int pointsToDeduct;
@@ -28,7 +28,7 @@ public class GameController : MonoBehaviour
     private GameObject GenerateNewCard(float positionZ)
     {
         GameObject newCard = Instantiate(cardStack.Pop());
-        newCard.transform.SetParent(board.transform);
+        newCard.transform.SetParent(cardsObjects.transform);
         newCard.transform.position = new Vector3(0, 0, positionZ);
         newCard.name = "Card " + cardStack.Count;
         newCard.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
@@ -54,6 +54,7 @@ public class GameController : MonoBehaviour
             if (cardStack.Count > 0)
             {
                 secondCard = GenerateNewCard(1);
+                firstCard.transform.SetAsLastSibling();
             }
             else
             {
@@ -66,9 +67,9 @@ public class GameController : MonoBehaviour
     {
         ShuffleList(cards);
         cardStack = new Stack<GameObject>(cards);
+        secondCard = GenerateNewCard(1);
         firstCard = GenerateNewCard(0);
         questionText.text = firstCard.GetComponent<CardController>().questionText;
-        secondCard = GenerateNewCard(1);
         enemyHealthText.text = "Enemy Health: " + enemyHealth.ToString();
     }
 }
