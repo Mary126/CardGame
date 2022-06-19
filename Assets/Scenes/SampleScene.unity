@@ -426,11 +426,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b869ae769baebe4da44e44db059c2b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cards:
-  - {fileID: 1354536457365806696, guid: 8f2533634b92c9e498e5ef0b22d7166f, type: 3}
-  - {fileID: 108754818306437554, guid: 7a46cb37d7da6a14587561c27164d5d5, type: 3}
-  - {fileID: 8022214112393632245, guid: 347113c605168964da8bec98337ab034, type: 3}
+  cardBlank: {fileID: 3130658357801083054, guid: a0027d62be1d3ae44ac2282b1b8cbe24, type: 3}
   cardsObjects: {fileID: 238434196}
+  fileResourceName: Database
   enemyHealth: 100
   enemyHealthText: {fileID: 427921306}
   pointsToDeduct: 10

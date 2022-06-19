@@ -91,9 +91,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b20de28471c211941b236da55a770554, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  questionText: Blank
-  leftAnswerText: Blank Left
-  rightAnswerText: Blank Right
+  questionText: 
+  leftAnswerText: 
+  rightAnswerText: 
   rightAnswerIsCorrect: 1
 --- !u!1 &3130658358722914423
 GameObject:
