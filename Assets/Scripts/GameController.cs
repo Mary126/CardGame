@@ -44,14 +44,14 @@ public class GameController : MonoBehaviour
             int number = Random.Range(1, 3);
             if (number == 1)
             {
-                newCard.transform.Find("Right Answer Text").GetComponent<TMPro.TextMeshProUGUI>().text = correctAnswer;
-                newCard.transform.Find("Left Answer Text").GetComponent<TMPro.TextMeshProUGUI>().text = incorrectAnswer;
+                newCard.GetComponent<CardController>().RightAnswerObject.GetComponent<TMPro.TextMeshProUGUI>().text = correctAnswer;
+                newCard.GetComponent<CardController>().LeftAnswerObject.GetComponent<TMPro.TextMeshProUGUI>().text = incorrectAnswer;
                 newCard.GetComponent<CardController>().RightAnswerIsCorrect = true;
             }
             else if (number == 2)
             {
-                newCard.transform.Find("Right Answer Text").GetComponent<TMPro.TextMeshProUGUI>().text = incorrectAnswer;
-                newCard.transform.Find("Left Answer Text").GetComponent<TMPro.TextMeshProUGUI>().text = correctAnswer;
+                newCard.GetComponent<CardController>().RightAnswerObject.GetComponent<TMPro.TextMeshProUGUI>().text = incorrectAnswer;
+                newCard.GetComponent<CardController>().LeftAnswerObject.GetComponent<TMPro.TextMeshProUGUI>().text = correctAnswer;
                 newCard.GetComponent<CardController>().RightAnswerIsCorrect = false;
             }
             newCard.SetActive(false);

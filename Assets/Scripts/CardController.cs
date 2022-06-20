@@ -7,45 +7,41 @@ using TMPro;
 public class CardController : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
     public string QuestionText;
-    public string LeftAnswerText;
-    public string RightAnswerText;
-    private GameObject _leftAnswerObject;
-    private GameObject _rightAnswerObject;
+    public GameObject LeftAnswerObject;
+    public GameObject RightAnswerObject;
     public bool RightAnswerIsCorrect;
     private Vector3 _initialPosition;
     public GameController GameController;
     private bool _swipedRight;
     private bool _isMoving;
+    [SerializeField]
+    private float CardMovementLenght;
 
-    private void Awake()
-    {
-        _leftAnswerObject = transform.Find("Left Answer Text").gameObject;
-        _rightAnswerObject = transform.Find("Right Answer Text").gameObject;
-    }
     public void OnDrag(PointerEventData eventData)
     {
-        if ((transform.localPosition.x < _initialPosition.x + 150 || (Camera.main.ScreenToWorldPoint(Input.mousePosition).x + 150) < _initialPosition.x + 150) &&
-            (transform.localPosition.x > _initialPosition.x - 150 || (Camera.main.ScreenToWorldPoint(Input.mousePosition).x - 150) > _initialPosition.x - 150))
+        if ((Camera.main.WorldToScreenPoint(transform.position).x <= Screen.width / 2 + CardMovementLenght) && eventData.delta.x > 0 ||
+            (Camera.main.WorldToScreenPoint(transform.position).x >= Screen.width / 2 - CardMovementLenght) && eventData.delta.x < 0)
         {
             transform.localPosition = new Vector2(transform.localPosition.x + eventData.delta.x, transform.localPosition.y);
             if (transform.localPosition.x - _initialPosition.x > 0)
             {
                 transform.localEulerAngles = new Vector3(0, 0, Mathf.LerpAngle(0, -30, (_initialPosition.x + transform.localPosition.x)/(Screen.width / 2)));
-                _rightAnswerObject.SetActive(true);
-                _leftAnswerObject.SetActive(false);
+                RightAnswerObject.SetActive(true);
+                LeftAnswerObject.SetActive(false);
             }
             else
             {
                 transform.localEulerAngles = new Vector3(0, 0, Mathf.LerpAngle(0, 30, (_initialPosition.x - transform.localPosition.x) / (Screen.width / 2)));
-                _leftAnswerObject.SetActive(true);
-                _rightAnswerObject.SetActive(false);
+                LeftAnswerObject.SetActive(true);
+                RightAnswerObject.SetActive(false);
             }
             if (transform.localPosition.x > _initialPosition.x - 90 && transform.localPosition.x < _initialPosition.x + 90)
             {
-                _leftAnswerObject.SetActive(false);
-                _rightAnswerObject.SetActive(false);
+                LeftAnswerObject.SetActive(false);
+                RightAnswerObject.SetActive(false);
             }
         }
+        
     }
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -59,8 +55,8 @@ public class CardController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
 
             StartCoroutine(MoveCardToStart());
             transform.rotation = Quaternion.identity;
-            _leftAnswerObject.SetActive(false);
-            _rightAnswerObject.SetActive(false);
+            LeftAnswerObject.SetActive(false);
+            RightAnswerObject.SetActive(false);
         }
         else
         {
@@ -121,9 +117,10 @@ public class CardController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
         {
             counter += Time.deltaTime;
             transform.localPosition = Vector3.Lerp(startPos, _initialPosition, counter / 0.5f);
+            GetComponent<CardController>().enabled = false;
             yield return null;
         }
-
+        GetComponent<CardController>().enabled = true;
         _isMoving = false;
 
     }
