@@ -223,8 +223,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -0.2995, y: 0}
-  m_SizeDelta: {x: 553.6128, y: 519}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 555, y: 519}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &168705275
 GameObject:
@@ -427,12 +427,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cardBlank: {fileID: 3130658357801083054, guid: a0027d62be1d3ae44ac2282b1b8cbe24, type: 3}
-  cardsObjects: {fileID: 238434196}
-  fileResourceName: Database
-  enemyHealth: 100
-  enemyHealthText: {fileID: 427921306}
-  pointsToDeduct: 10
-  questionText: {fileID: 168705277}
+  CardsObjects: {fileID: 238434196}
+  FileResourceName: Database
+  EnemyHealth: 100
+  EnemyHealthText: {fileID: 427921306}
+  PointsToDeduct: 10
+  QuestionText: {fileID: 168705277}
 --- !u!4 &328183805
 Transform:
   m_ObjectHideFlags: 0

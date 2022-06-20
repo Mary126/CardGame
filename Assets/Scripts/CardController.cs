@@ -6,73 +6,79 @@ using TMPro;
 
 public class CardController : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler
 {
-    public string questionText;
-    public string leftAnswerText;
-    public string rightAnswerText;
-    private GameObject leftAnswerObject;
-    private GameObject rightAnswerObject;
-    public bool rightAnswerIsCorrect;
-    private Vector3 initialPosition;
-    private float distanceMoved;
-    private GameController gameController;
-    private bool swipedRight;
+    public string QuestionText;
+    public string LeftAnswerText;
+    public string RightAnswerText;
+    private GameObject _leftAnswerObject;
+    private GameObject _rightAnswerObject;
+    public bool RightAnswerIsCorrect;
+    private Vector3 _initialPosition;
+    public GameController GameController;
+    private bool _swipedRight;
+    private bool _isMoving;
 
     private void Awake()
     {
-        leftAnswerObject = transform.Find("Left Answer Text").gameObject;
-        rightAnswerObject = transform.Find("Right Answer Text").gameObject;
-        gameController = GameObject.Find("GameController").GetComponent<GameController>();
+        _leftAnswerObject = transform.Find("Left Answer Text").gameObject;
+        _rightAnswerObject = transform.Find("Right Answer Text").gameObject;
     }
     public void OnDrag(PointerEventData eventData)
     {
-        if (transform.localPosition.x <= 100 && transform.localPosition.x >= -100)
+        if ((transform.localPosition.x < _initialPosition.x + 150 || (Camera.main.ScreenToWorldPoint(Input.mousePosition).x + 150) < _initialPosition.x + 150) &&
+            (transform.localPosition.x > _initialPosition.x - 150 || (Camera.main.ScreenToWorldPoint(Input.mousePosition).x - 150) > _initialPosition.x - 150))
         {
             transform.localPosition = new Vector2(transform.localPosition.x + eventData.delta.x, transform.localPosition.y);
-            transform.rotation = Quaternion.Euler(0, 0, -transform.localPosition.x / 10);
-            if (transform.localPosition.x > 0)
+            if (transform.localPosition.x - _initialPosition.x > 0)
             {
-                rightAnswerObject.SetActive(true);
-                leftAnswerObject.SetActive(false);
+                transform.localEulerAngles = new Vector3(0, 0, Mathf.LerpAngle(0, -30, (_initialPosition.x + transform.localPosition.x)/(Screen.width / 2)));
+                _rightAnswerObject.SetActive(true);
+                _leftAnswerObject.SetActive(false);
             }
-            else if (transform.localPosition.x < 0)
+            else
             {
-                leftAnswerObject.SetActive(true);
-                rightAnswerObject.SetActive(false);
+                transform.localEulerAngles = new Vector3(0, 0, Mathf.LerpAngle(0, 30, (_initialPosition.x - transform.localPosition.x) / (Screen.width / 2)));
+                _leftAnswerObject.SetActive(true);
+                _rightAnswerObject.SetActive(false);
+            }
+            if (transform.localPosition.x > _initialPosition.x - 90 && transform.localPosition.x < _initialPosition.x + 90)
+            {
+                _leftAnswerObject.SetActive(false);
+                _rightAnswerObject.SetActive(false);
             }
         }
     }
     public void OnBeginDrag(PointerEventData eventData)
     {
-        initialPosition = transform.localPosition;
+        _initialPosition = transform.localPosition;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        distanceMoved = Mathf.Abs(transform.localPosition.x - initialPosition.x);
-        if (distanceMoved < 0.01 * Screen.width)
+        if (transform.localPosition.x < _initialPosition.x + 90 && transform.localPosition.x > _initialPosition.x - 90)
         {
-            transform.localPosition = initialPosition;
+
+            StartCoroutine(MoveCardToStart());
             transform.rotation = Quaternion.identity;
-            leftAnswerObject.SetActive(false);
-            rightAnswerObject.SetActive(false);
+            _leftAnswerObject.SetActive(false);
+            _rightAnswerObject.SetActive(false);
         }
         else
         {
-            if (transform.localPosition.x > initialPosition.x)
+            if (transform.localPosition.x > _initialPosition.x)
             {
-                if (rightAnswerIsCorrect)
+                if (RightAnswerIsCorrect)
                 {
-                    gameController.AnswerCorrect();
+                    GameController.AnswerCorrect();
                 }
-                swipedRight = true;
+                _swipedRight = true;
             }
             else
             {
-                if (!rightAnswerIsCorrect)
+                if (!RightAnswerIsCorrect)
                 {
-                    gameController.AnswerCorrect();
+                    GameController.AnswerCorrect();
                 }
-                swipedRight = false;
+                _swipedRight = false;
             }
             StartCoroutine(MovedCard());
         }
@@ -83,7 +89,7 @@ public class CardController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
         while (GetComponent<Image>().color != new Color(1, 1, 1, 0))
         {
             time += Time.deltaTime;
-            if (!swipedRight)
+            if (!_swipedRight)
             {
                 transform.localPosition = new Vector3(Mathf.SmoothStep(transform.localPosition.x,
                     transform.localPosition.x - 200, time), Mathf.SmoothStep(transform.localPosition.y, transform.localPosition.y - Screen.height, time), 0);
@@ -96,6 +102,29 @@ public class CardController : MonoBehaviour, IDragHandler, IBeginDragHandler, IE
             GetComponent<Image>().color = new Color(1, 1, 1, Mathf.SmoothStep(1, 0, 4 * time));
             yield return null;
         }
-        gameController.DestroyTopCard();
+        GameController.DestroyTopCard();
+    }
+    private IEnumerator MoveCardToStart()
+    {
+        if (_isMoving)
+        {
+            yield break; ///exit if this is still running
+        }
+        _isMoving = true;
+
+        float counter = 0;
+
+        //Get the current position of the object to be moved
+        Vector3 startPos = transform.localPosition;
+
+        while (counter < 0.5f)
+        {
+            counter += Time.deltaTime;
+            transform.localPosition = Vector3.Lerp(startPos, _initialPosition, counter / 0.5f);
+            yield return null;
+        }
+
+        _isMoving = false;
+
     }
 }

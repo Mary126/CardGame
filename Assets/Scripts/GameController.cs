@@ -4,17 +4,17 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
-    private List<GameObject> cards;
+    private List<GameObject> _cards;
     public GameObject cardBlank;
-    private Stack<GameObject> cardStack;
-    private GameObject firstCard;
-    private GameObject secondCard;
-    public GameObject cardsObjects;
-    public string fileResourceName;
-    public int enemyHealth;
-    public TMPro.TextMeshProUGUI enemyHealthText;
-    public int pointsToDeduct;
-    public TMPro.TextMeshProUGUI questionText;
+    private Stack<GameObject> _cardStack;
+    private GameObject _firstCard;
+    private GameObject _secondCard;
+    public GameObject CardsObjects;
+    public string FileResourceName;
+    public int EnemyHealth;
+    public TMPro.TextMeshProUGUI EnemyHealthText;
+    public int PointsToDeduct;
+    public TMPro.TextMeshProUGUI QuestionText;
 
     
     private void ShuffleList(List<GameObject> inputList)
@@ -30,14 +30,15 @@ public class GameController : MonoBehaviour
     }
     private void parseCSV()
     {
-        var dataset = Resources.Load<TextAsset>(fileResourceName);
+        var dataset = Resources.Load<TextAsset>(FileResourceName);
         var dataLines = dataset.text.Split('\n');
         for (int i = 1; i < dataLines.Length - 1; i++)
         {
             var data = dataLines[i].Split(';');
             GameObject newCard = Instantiate(cardBlank);
             newCard.transform.SetParent(gameObject.transform);
-            newCard.GetComponent<CardController>().questionText = data[0];
+            newCard.GetComponent<CardController>().QuestionText = data[0];
+            newCard.GetComponent<CardController>().GameController = this;
             string correctAnswer = data[1];
             string incorrectAnswer = data[2];
             int number = Random.Range(1, 3);
@@ -45,66 +46,66 @@ public class GameController : MonoBehaviour
             {
                 newCard.transform.Find("Right Answer Text").GetComponent<TMPro.TextMeshProUGUI>().text = correctAnswer;
                 newCard.transform.Find("Left Answer Text").GetComponent<TMPro.TextMeshProUGUI>().text = incorrectAnswer;
-                newCard.GetComponent<CardController>().rightAnswerIsCorrect = true;
+                newCard.GetComponent<CardController>().RightAnswerIsCorrect = true;
             }
             else if (number == 2)
             {
                 newCard.transform.Find("Right Answer Text").GetComponent<TMPro.TextMeshProUGUI>().text = incorrectAnswer;
                 newCard.transform.Find("Left Answer Text").GetComponent<TMPro.TextMeshProUGUI>().text = correctAnswer;
-                newCard.GetComponent<CardController>().rightAnswerIsCorrect = false;
+                newCard.GetComponent<CardController>().RightAnswerIsCorrect = false;
             }
             newCard.SetActive(false);
-            cards.Add(newCard);
+            _cards.Add(newCard);
         }
     }
     private GameObject GenerateNewCard(float positionZ)
     {
-        GameObject newCard = cardStack.Pop();
+        GameObject newCard = _cardStack.Pop();
         newCard.SetActive(true);
-        newCard.transform.SetParent(cardsObjects.transform);
+        newCard.transform.SetParent(CardsObjects.transform);
         newCard.transform.position = new Vector3(0, 0, positionZ);
-        newCard.name = "Card " + cardStack.Count;
+        newCard.name = "Card " + _cardStack.Count;
         newCard.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
         return newCard;
     }
     public void AnswerCorrect()
     {
-        enemyHealth -= pointsToDeduct;
-        enemyHealthText.text = "EnemyHealth: " + enemyHealth.ToString();
+        EnemyHealth -= PointsToDeduct;
+        EnemyHealthText.text = "EnemyHealth: " + EnemyHealth.ToString();
     }
     public void DestroyTopCard()
     {
-        Destroy(firstCard);
-        if (secondCard == null)
+        Destroy(_firstCard);
+        if (_secondCard == null)
         {
-            questionText.text = "Game end";
+            QuestionText.text = "Game end";
         }
         else
         {
-            firstCard = secondCard;
-            firstCard.transform.position = new Vector3(0, 0, 0);
-            questionText.text = firstCard.GetComponent<CardController>().questionText;
-            if (cardStack.Count > 0)
+            _firstCard = _secondCard;
+            _firstCard.transform.position = new Vector3(0, 0, 0);
+            QuestionText.text = _firstCard.GetComponent<CardController>().QuestionText;
+            if (_cardStack.Count > 0)
             {
-                secondCard = GenerateNewCard(1);
-                firstCard.transform.SetAsLastSibling();
+                _secondCard = GenerateNewCard(1);
+                _firstCard.transform.SetAsLastSibling();
             }
             else
             {
                 Debug.Log("End of stack");
-                secondCard = null;
+                _secondCard = null;
             }
         }
     }
     public void Awake()
     {
-        cards = new List<GameObject>();
+        _cards = new List<GameObject>();
         parseCSV();
-        ShuffleList(cards);
-        cardStack = new Stack<GameObject>(cards);
-        secondCard = GenerateNewCard(1);
-        firstCard = GenerateNewCard(0);
-        questionText.text = firstCard.GetComponent<CardController>().questionText;
-        enemyHealthText.text = "Enemy Health: " + enemyHealth.ToString();
+        ShuffleList(_cards);
+        _cardStack = new Stack<GameObject>(_cards);
+        _secondCard = GenerateNewCard(1);
+        _firstCard = GenerateNewCard(0);
+        QuestionText.text = _firstCard.GetComponent<CardController>().QuestionText;
+        EnemyHealthText.text = "Enemy Health: " + EnemyHealth.ToString();
     }
 }
